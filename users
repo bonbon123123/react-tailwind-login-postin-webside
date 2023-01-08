@@ -1,0 +1,1 @@
+{"_id":0,"login":"admin","password":"admin","first_name":"piotr","last_name":"stach","bio":"i am the admin","role":"admin","created_at":{"$$date":1672926931876},"created_by":0,"first_login":{"$$date":1672926931876},"image":0,"department":"admins","status":"inactive"}
