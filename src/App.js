@@ -1,89 +1,112 @@
-import React from "react";
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './App.css';
+import Login from './pages/loginpage';
+import Profile from './pages/userprofile';
+import useToken from './useToken';
 
-export function App() {
-  const [data, setData] = React.useState(null);
+function setToken(userToken) {
+  sessionStorage.setItem('token', JSON.stringify(userToken));
+}
 
-  React.useEffect(() => {
-    fetch("/api")
-      .then((res) => res.json())
-      .then((data) => setData(data.message));
-  }, []);
+
+
+
+function App() {
+  const { token, setToken } = useToken();
+
 
   return (
+
+
     <div>
-      <div className="App">
-        <header className="App-header">
-          <p>{!data ? "Loading..." : data}</p>
-        </header>
-      </div>
-      <div class="bg-white py-24 sm:py-32 lg:py-40">
-        <div class="mx-auto max-w-7xl px-6 lg:px-8">
-          <div class="sm:text-center">
-            <h2 class="text-lg font-semibold leading-8 text-indigo-600">Transactions</h2>
-            <p class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">A better way to send money</p>
-            <p class="mx-auto mt-6 max-w-2xl text-lg leading-8 text-gray-600">Lorem ipsum dolor sit amet consect adipisicing elit. Possimus magnam voluptatum cupiditate veritatis in accusamus quisquam.</p>
+      <Router>
+        <nav className="flex items-center justify-between flex-wrap bg-gray-900 p-6">
+          {/* Logo */}
+          <div className="flex items-center flex-shrink-0 text-white mr-6">
+            <svg
+              className="fill-current h-8 w-8 mr-2"
+              width="54"
+              height="54"
+              viewBox="0 0 54 54"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M0 0h54v54H0z" fill="none" />
+              <path
+                d="M27 0c14.912 0 27 12.088 27 27s-12.088 27-27 27S0 41.912 0 27 12.088 0 27 0zm-3.66 40.603L31.076 29.1H21.192l7.148 11.503zm-5.063-17.705h10.788L25.95 10.397l-7.673 12.501zM9.808 27c0-7.426 6.028-13.454 13.454-13.454 4.727 0 8.916 2.429 11.34 6.114L19.922 29.114C17.498 25.429 13.309 23 8.808 23c-5.522 0-10 4.477-10 10s4.478 10 10 10c4.501 0 8.69-2.429 11.114-6.114l14.68 9.442c-2.424 3.684-6.613 6.114-11.114 6.114C15.836 40.454 9.808 34.426 9.808 27z"
+                fill="#FFF"
+              />
+            </svg>
+            <span className="font-semibold text-xl tracking-tight">My App</span>
           </div>
-
-          <div class="mt-20 max-w-lg sm:mx-auto md:max-w-none">
-            <div class="grid grid-cols-1 gap-y-16 md:grid-cols-2 md:gap-x-12 md:gap-y-16">
-              <div class="relative flex flex-col gap-6 sm:flex-row md:flex-col lg:flex-row">
-                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500 text-white sm:shrink-0">
-
-                  <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
-                  </svg>
-                </div>
-                <div class="sm:min-w-0 sm:flex-1">
-                  <p class="text-lg font-semibold leading-8 text-gray-900">Competitive exchange rates</p>
-                  <p class="mt-2 text-base leading-7 text-gray-600">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.</p>
-                </div>
-              </div>
-
-              <div class="relative flex flex-col gap-6 sm:flex-row md:flex-col lg:flex-row">
-                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500 text-white sm:shrink-0">
-
-                  <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 01-2.031.352 5.988 5.988 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L18.75 4.971zm-16.5.52c.99-.203 1.99-.377 3-.52m0 0l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.989 5.989 0 01-2.031.352 5.989 5.989 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L5.25 4.971z" />
-                  </svg>
-                </div>
-                <div class="sm:min-w-0 sm:flex-1">
-                  <p class="text-lg font-semibold leading-8 text-gray-900">No hidden fees</p>
-                  <p class="mt-2 text-base leading-7 text-gray-600">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.</p>
-                </div>
-              </div>
-
-              <div class="relative flex flex-col gap-6 sm:flex-row md:flex-col lg:flex-row">
-                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500 text-white sm:shrink-0">
-
-                  <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-                  </svg>
-                </div>
-                <div class="sm:min-w-0 sm:flex-1">
-                  <p class="text-lg font-semibold leading-8 text-gray-900">Transfers are instant</p>
-                  <p class="mt-2 text-base leading-7 text-gray-600">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.</p>
-                </div>
-              </div>
-
-              <div class="relative flex flex-col gap-6 sm:flex-row md:flex-col lg:flex-row">
-                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500 text-white sm:shrink-0">
-
-                  <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
-                  </svg>
-                </div>
-                <div class="sm:min-w-0 sm:flex-1">
-                  <p class="text-lg font-semibold leading-8 text-gray-900">Mobile notifications</p>
-                  <p class="mt-2 text-base leading-7 text-gray-600">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.</p>
-                </div>
-              </div>
+          {/* Links */}
+          <div className="block lg:hidden">
+            <button className="flex items-center px-3 py-2 border rounded text-white border-white hover:text-gray-300 hover:border-gray-300">
+              <svg
+                className="fill-current h-3 w-3"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <title>Menu</title>
+                <path
+                  d="M0 2.5A2.5 2.5 0 015 0h10a2.5 2.5 0 012.5 2.5v1.25H0V2.5zm0 6.25v6.25h17.5v-6.25H0zm0 8.75V20h17.5v-2.5H0z"
+                />
+              </svg>
+            </button>
+          </div>
+          <div className="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
+            <div className="text-sm lg:flex-grow">
+              <Link
+                to="#"
+                className="block mt-4 lg:inline-block lg:mt-0 text-gray-400 hover:text-white mr-4"
+              >
+                Features
+              </Link>
+              <Link
+                to="#"
+                className="block mt-4 lg:inline-block lg:mt-0 text-gray-400 hover:text-white mr-4"
+              >
+                Pricing
+              </Link>
+              <Link
+                to="#"
+                className="block mt-4 lg:inline-block lg:mt-0 text-gray-400 hover:text-white"
+              >
+                Contact
+              </Link>
             </div>
+            {/* Buttons */}
+            {token ?
+              <div className="ml-4">
+                <Link
+                  to="/profile"
+                  className="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-gray-900 hover:bg-white mt-4 lg:mt-0"
+                >
+                  Profile
+                </Link>
+              </div>
+              :
+              <div className="ml-4">
+                <Link
+                  to="/"
+                  className="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-gray-900 hover:bg-white mt-4 lg:mt-0"
+                >
+                  Log In
+                </Link>
+              </div>
+            }
           </div>
-        </div>
-      </div>
+        </nav>
+
+        <Routes>
+          <Route path="/" element={<Login setToken={setToken} />} />
+          <Route path="/profile" element={token ? <Profile token={token} /> : <Login setToken={setToken} />} />
+
+        </Routes>
+      </Router>
     </div>
-  )
+
+  );
 }
 
 export default App;
