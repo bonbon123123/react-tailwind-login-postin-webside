@@ -17,6 +17,8 @@ app.use(cors());
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 
+const multer = require("multer");
+
 
 
 
@@ -61,36 +63,60 @@ app.post('/profilePicture', (req, res) => {
     ps.pipe(res) // <---- this makes a trick with stream error handling
 })
 
-app.post('/addUser', (req, res) => {
-    req.on("data", function (data) {
-        let myData = JSON.parse(data)
-        let prototypeUser =
-        {
-            _id: uuidv4(),
-            login: myData.login,
-            password: myData.password,
-            profile_picture: myData.profile_picture,
-            first_name: myData.first_name,
-            last_name: myData.last_name,
-            bio: myData.bio,
-            role: myData.role,
-            created_at: myData.created_at,// Will not be saved
-            created_by: myData.created_by,
-            first_login: myData.first_login,
-            image: myData.image,
-            department: myData.department,
-            status: myData.status
-        };
 
-        dbUsers.insert(prototypeUser, function (err, newDoc) {   // Callback is optional
-            // newDoc is the newly inserted document, including its _id
-            // newDoc has no key called notToBeSaved since its value was undefined
+let profileStorage = multer.diskStorage({
+    destination: path.join(__dirname, './static', 'profile-pictures'),
+    filename: function (req, file, cb) {
+        // let ext = path.extname(file.originalname);
+        // let fileName = userUUid + ext;
+        // req.fileDetails = {
+        //     fileName: fileName,
+        //     fileType: file.mimetype,
+        //     filePath: `/static/profile-pictures/${fileName}`,
+        // };
+        cb(null, file.originalname);
+    },
+});
+
+let profileUpload = multer({ storage: profileStorage });
+
+app.post('/addUser', profileUpload.single('image'), (req, res) => {
+    console.log(JSON.parse(req.body.jsonData));
+    console.log(req.file.filename);
+    let imageName = uuidv4();
+    fs.rename(path.join(__dirname, './static', 'profile-pictures', req.file.filename),
+        path.join(__dirname, './static', 'profile-pictures', imageName + path.extname(req.file.filename)), function (err) {
+            if (err) console.log('ERROR: ' + err);
         });
-    })
+
+    let myData = JSON.parse(req.body.jsonData);
+    console.log(myData.login)
+    let prototypeUser =
+    {
+        _id: uuidv4(),
+        login: myData.login,
+        password: myData.password,
+        first_name: myData.first_name,
+        last_name: myData.last_name,
+        bio: myData.bio,
+        role: myData.role,
+        created_at: myData.created_at,// Will not be saved
+        created_by: myData.created_by,
+        first_login: myData.first_login,
+        image: imageName,
+        department: myData.department,
+        status: myData.status
+    };
+
+    console.log(prototypeUser)
+
+    dbUsers.insert(prototypeUser, function (err, newDoc) {   // Callback is optional
+        // newDoc is the newly inserted document, including its _id
+        // newDoc has no key called notToBeSaved since its value was undefined
+    });
 
 
-})
-
+});
 app.post('/addPost', (req, res) => {
     let myData = req.body;
     let prototypePost =
@@ -101,7 +127,7 @@ app.post('/addPost', (req, res) => {
         updated_at: myData.updated_at,
         updated_by: myData.updated_by,
         text: myData.text,
-        image: myData.image,
+        images: myData.images,
         permission: myData.permission,
         status: myData.status
     };
@@ -128,26 +154,34 @@ app.post("/login", (req, res) => {
     });
 });
 
-app.post("/getMyPosts", (req, res) => {
-    //console.log(JSON.stringify(req.body));
-    dbPosts.find({}, function (err, docs) {
-        //console.log(docs);
+app.get("/getMyPosts", (req, res) => {
+    let data = req.body;
+
+    dbPosts.find({ created_by: data.created_by }, function (err, docs) {
+        console.log(docs);
+        res.send(JSON.stringify(docs));
+    });
+});
+
+app.post("/getPostsWithMyPremission", (req, res) => {
+    let data = req.body;
+    console.log(data);
+    console.log(data.role);
+    dbPosts.find({ permission: data.role }, function (err, docs) {
+        console.log("getPostsWithMyPremission");
         res.send(JSON.stringify(docs));
     });
 });
 
 app.get("/getPosts", (req, res) => {
     dbPosts.find({}, function (err, docs) {
-        //console.log(docs);
+        console.log("getPosts");
+        console.log(docs);
         res.send(JSON.stringify(docs));
     });
 });
 
-app.get("/api", (req, res) => {
-    res.json({ message: "Hello from server!" });
-});
 
-const multer = require("multer");
 
 const storage = multer.diskStorage({
     destination: path.join(__dirname, './static', 'post-pictures'),
@@ -164,14 +198,18 @@ app.post('/upload', upload.array('image'), async (req, res) => {
         console.log(JSON.parse(req.body.jsonData));
         console.log(req.files[0].filename);
         let arrayOfImages = []
-        req.files.forEach(element => {
-            let myFilename = uuidv4() + ".png";
-            arrayOfImages.push(myFilename);
-            fs.rename(path.join(__dirname, './static', 'post-pictures', element.filename),
-                path.join(__dirname, './static', 'post-pictures', myFilename), function (err) {
-                    if (err) console.log('ERROR: ' + err);
-                });
-        });
+        if (filename !== undefined) {
+
+            req.files.forEach(element => {
+                let myFilename = uuidv4() + ".png";
+                arrayOfImages.push(myFilename);
+                fs.rename(path.join(__dirname, './static', 'post-pictures', element.filename),
+                    path.join(__dirname, './static', 'post-pictures', myFilename), function (err) {
+                        if (err) console.log('ERROR: ' + err);
+                    });
+            });
+        }
+
 
 
         let prototypePost =
@@ -182,7 +220,7 @@ app.post('/upload', upload.array('image'), async (req, res) => {
             updated_at: "myData.updated_at",
             updated_by: JSON.parse(req.body.jsonData).user,
             text: JSON.parse(req.body.jsonData).content,
-            image: arrayOfImages,
+            images: arrayOfImages,
             permission: 'myData.permission',
             status: 'myData.status',
             title: JSON.parse(req.body.jsonData).title

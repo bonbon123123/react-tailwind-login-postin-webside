@@ -13,7 +13,7 @@ export default function Post(props) {
 
 
 
-    //console.log(content.images.length);
+    console.log(content);
 
     useEffect(() => {
 
@@ -56,7 +56,7 @@ export default function Post(props) {
 
 
                 <div class="lg:mt-8">
-                    <h1 class="mt-0 text-2xl leading-8 text-gray-300"> Title</h1>
+                    <h1 class="mt-0 text-2xl leading-8 text-gray-300"> {content.title}</h1>
                 </div>
                 <div class="flex justify-start">
                     {imageUrl && (
@@ -64,7 +64,7 @@ export default function Post(props) {
                     )}
                 </div>
                 <div class="lg:mt-8 mb-8">
-                    <p class="mt-2 text-lg leading-8 text-gray-300"> eu sed consectetur Malesuada adipiscing sagittis vel nulla.</p>
+                    <p class="mt-2 text-lg leading-8 text-gray-300">{content.text}</p>
                     <div class="mt-10 flex items-center justify-center gap-x-6 lg:justify-start">
                         <a href="#" class="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Get started</a>
                         <a href="#" class="text-sm font-semibold leading-6 text-white">Learn more <span aria-hidden="true">→</span></a>

@@ -5,13 +5,16 @@ import axios from 'axios';
 function PostArea(props) {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
+    const [permission, setPermission] = useState("");
     const [images, setImages] = useState([]);
     const { user } = props;
 
     const handleTitleChange = (event) => {
         setTitle(event.target.value);
     };
-
+    const handlePermissionChange = (event) => {
+        setPermission(event.target.value);
+    };
     const handleContentChange = (event) => {
         setContent(event.target.value);
     };
@@ -26,12 +29,13 @@ function PostArea(props) {
         let jsonData = {
             "user": user,
             "title": title,
+            "permission": permission,
             "content": content
         }
         formData.append('jsonData', JSON.stringify(jsonData));
 
         images.forEach((image, index) => {
-            formData.append(`image`, image);
+            formData.append(image, image);
         });
 
         const URL = "http://localhost:3001/upload"
@@ -45,46 +49,6 @@ function PostArea(props) {
         console.log("REsult: ", result);
     }
 
-    // const handleSubmit = (event) => {
-    //     event.preventDefault();
-    //     console.log({ title, content, images });
-    //     let jsonData = {
-    //         "user": user,
-    //         "title": title,
-    //         "content": content
-    //     }
-    //     const formData = new FormData();
-    //     formData.append("json", JSON.stringify(jsonData));
-
-    //     for (let i = 0; i < images.length; i++) {
-    //         formData.append("images", images[i]);
-    //     }
-    //     fetch('/upload', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'multipart/form-data;  boundary=<boundary_string>',
-    //             "enctype": "multipart/form-data"
-    //         },
-    //         body: formData
-    //     })
-    //         .then(response => response.json())
-    //         .then(data => console.log(data))
-    //         .catch(error => console.error(error));
-    //     // const formData = new FormData();
-    //     // formData.append('image', selectedFile);
-
-    //     // axios.post('/api/upload', formData, {
-    //     //     headers: {
-    //     //         'Content-Type': 'multipart/form-data'
-    //     //     }
-    //     // })
-    //     //     .then((response) => {
-    //     //         console.log(response.data);
-    //     //     })
-    //     //     .catch((error) => {
-    //     //         console.log(error);
-    //     //     });
-    // };
 
     return (
 
@@ -117,6 +81,22 @@ function PostArea(props) {
                             required
                         />
                     </div>
+                    <div className="mt-0 text-2xl leading-8 ">
+                        <label htmlFor="content" className="block font-medium mb-1 text-gray-300">
+                            permission
+                        </label>
+                        <select
+                            name="permission"
+                            value={permission}
+                            onChange={handlePermissionChange}
+                            className="w-full p-2 border border-gray-400 rounded"
+                        >
+                            <option value="">Select permissions</option>
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+
                     <div className="mb-5">
                         <label htmlFor="images" className="block font-medium mb-1 text-gray-300">
                             Images

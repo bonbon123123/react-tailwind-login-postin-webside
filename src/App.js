@@ -3,7 +3,10 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './App.css';
 import Login from './pages/loginpage';
 import Profile from './pages/userprofile';
+import Main from './pages/mainpage';
+import Admin from './pages/adminpage';
 import useToken from './useToken';
+
 
 function setToken(userToken) {
   sessionStorage.setItem('token', JSON.stringify(userToken));
@@ -14,96 +17,108 @@ function setToken(userToken) {
 
 function App() {
   const { token, setToken } = useToken();
+  const [postOn, setPostOn] = useState(0);
 
+  const turnOnPosting = () => {
+    setPostOn(postOn + 1);
+    if (postOn === 0) {
+      setPostOn(1);
+    } else {
+      setPostOn(0);
+    }
+  };
 
   return (
 
 
     <div>
-      <Router>
-        <nav className="flex items-center justify-between flex-wrap bg-gray-900 p-6">
-          {/* Logo */}
-          <div className="flex items-center flex-shrink-0 text-white mr-6">
-            <svg
-              className="fill-current h-8 w-8 mr-2"
-              width="54"
-              height="54"
-              viewBox="0 0 54 54"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path d="M0 0h54v54H0z" fill="none" />
-              <path
-                d="M27 0c14.912 0 27 12.088 27 27s-12.088 27-27 27S0 41.912 0 27 12.088 0 27 0zm-3.66 40.603L31.076 29.1H21.192l7.148 11.503zm-5.063-17.705h10.788L25.95 10.397l-7.673 12.501zM9.808 27c0-7.426 6.028-13.454 13.454-13.454 4.727 0 8.916 2.429 11.34 6.114L19.922 29.114C17.498 25.429 13.309 23 8.808 23c-5.522 0-10 4.477-10 10s4.478 10 10 10c4.501 0 8.69-2.429 11.114-6.114l14.68 9.442c-2.424 3.684-6.613 6.114-11.114 6.114C15.836 40.454 9.808 34.426 9.808 27z"
-                fill="#FFF"
-              />
-            </svg>
-            <span className="font-semibold text-xl tracking-tight">My App</span>
-          </div>
-          {/* Links */}
-          <div className="block lg:hidden">
-            <button className="flex items-center px-3 py-2 border rounded text-white border-white hover:text-gray-300 hover:border-gray-300">
-              <svg
-                className="fill-current h-3 w-3"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <title>Menu</title>
-                <path
-                  d="M0 2.5A2.5 2.5 0 015 0h10a2.5 2.5 0 012.5 2.5v1.25H0V2.5zm0 6.25v6.25h17.5v-6.25H0zm0 8.75V20h17.5v-2.5H0z"
-                />
-              </svg>
-            </button>
-          </div>
-          <div className="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
-            <div className="text-sm lg:flex-grow">
-              <Link
-                to="#"
-                className="block mt-4 lg:inline-block lg:mt-0 text-gray-400 hover:text-white mr-4"
-              >
-                Features
-              </Link>
-              <Link
-                to="#"
-                className="block mt-4 lg:inline-block lg:mt-0 text-gray-400 hover:text-white mr-4"
-              >
-                Pricing
-              </Link>
-              <Link
-                to="#"
-                className="block mt-4 lg:inline-block lg:mt-0 text-gray-400 hover:text-white"
-              >
-                Contact
-              </Link>
+      {token ?
+        <Router>
+
+          <nav class="bg-white border-gray-200 px-2 sm:px-4 py-2.5  dark:bg-gray-900">
+            <div class="container flex flex-wrap items-center justify-between mx-auto">
+              <a href="https://flowbite.com/" class="flex items-center">
+                <img src="https://flowbite.com/docs/images/logo.svg" class="h-6 mr-3 sm:h-9" alt="Flowbite Logo" />
+                <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Bonbon</span>
+              </a>
+              <button data-collapse-toggle="navbar-default" type="button" class="inline-flex items-center p-2 ml-3 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-default" aria-expanded="false">
+                <span class="sr-only">Open main menu</span>
+                <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
+              </button>
+              <div class="hidden w-full md:block md:w-auto" id="navbar-default">
+                <div class="flex flex-col p-4 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+                  {token ? <div class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Post Now!</div>
+                    : null}
+
+                  {token.role === "admin" ?
+                    <div className="ml-4">
+                      <Link
+                        to="/admin"
+                        className="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-gray-900 hover:bg-white mt-4 lg:mt-0"
+                      >
+                        Add User
+                      </Link>
+                    </div>
+                    :
+                    <div>
+                    </div>
+                  }
+                  <div className="ml-4">
+                    <Link
+                      to="/main"
+                      className="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-gray-900 hover:bg-white mt-4 lg:mt-0"
+                    >
+                      Main
+                    </Link>
+                  </div>
+                  {token ?
+                    <div className="ml-4">
+                      <Link
+                        to="/profile"
+                        className="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-gray-900 hover:bg-white mt-4 lg:mt-0"
+                      >
+                        Profile
+                      </Link>
+                    </div>
+                    :
+                    <div className="ml-4">
+                      <Link
+                        to="/"
+                        className="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-gray-900 hover:bg-white mt-4 lg:mt-0"
+                      >
+                        Log In
+                      </Link>
+                    </div>
+                  }
+                </div>
+              </div>
             </div>
-            {/* Buttons */}
-            {token ?
-              <div className="ml-4">
-                <Link
-                  to="/profile"
-                  className="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-gray-900 hover:bg-white mt-4 lg:mt-0"
-                >
-                  Profile
-                </Link>
-              </div>
-              :
-              <div className="ml-4">
-                <Link
-                  to="/"
-                  className="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-gray-900 hover:bg-white mt-4 lg:mt-0"
-                >
-                  Log In
-                </Link>
-              </div>
-            }
-          </div>
-        </nav>
+          </nav>
 
-        <Routes>
-          <Route path="/" element={<Login setToken={setToken} />} />
-          <Route path="/profile" element={token ? <Profile token={token} /> : <Login setToken={setToken} />} />
 
-        </Routes>
-      </Router>
+
+          <Routes>
+            <Route path="/" element={<Login setToken={setToken} />} />
+            <Route path="/login" element={<Login setToken={setToken} />} />
+            <Route path="/profile" element={token ? <Profile token={token} /> : <Login setToken={setToken} />} />
+            <Route path="/main" element={token ? <Main token={token} /> : <Login setToken={setToken} />} />
+            {/* <Route path="/admin" element={token.role === "admin" ? <Admin token={token} /> : <Login setToken={setToken} />} /> */}
+            <Route path="/admin" element={<Admin token={token} />} />
+          </Routes>
+        </Router>
+
+        :
+        <Router>
+          <Routes>
+            <Route path="/" element={<Login setToken={setToken} />} />
+            <Route path="/login" element={<Login setToken={setToken} />} />
+            <Route path="/profile" element={token ? <Profile token={token} /> : <Login setToken={setToken} />} />
+            <Route path="/main" element={token ? <Main token={token} /> : <Login setToken={setToken} />} />
+            {/* <Route path="/admin" element={token.role === "admin" ? <Admin token={token} /> : <Login setToken={setToken} />} /> */}
+            <Route path="/admin" element={<Admin token={token} />} />
+          </Routes>
+        </Router>
+      }
     </div>
 
   );

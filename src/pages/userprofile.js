@@ -2,11 +2,20 @@ import React, { useState, useEffect } from "react";
 import './App.css';
 import Post from '../components/Post';
 import PostArea from '../components/PostArea';
+
+
+
+
+
+
 export function UserProfile(props) {
     const { token } = props;
     const [posts, setPosts] = useState([]);
 
-    React.useEffect(() => {
+
+
+
+    useEffect(() => {
         fetch('/getMyPosts', {
             method: 'POST',
             headers: {
@@ -26,6 +35,9 @@ export function UserProfile(props) {
     }, []);
 
 
+
+    console.log(token)
+    console.log(token.image)
     const postComponents =
         posts.length > 0 ? (
 
@@ -45,7 +57,7 @@ export function UserProfile(props) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ image: token._id })
+            body: JSON.stringify({ image: token.image })
         })
             .then(response => response.blob())
             .then(blob => {
