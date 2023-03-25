@@ -25,6 +25,7 @@ function PostArea(props) {
     };
     const handleSubmit = async (event) => {
         event.preventDefault();
+        console.log("handling submit: ");
         const formData = new FormData();
         let jsonData = {
             "user": user,
@@ -33,11 +34,11 @@ function PostArea(props) {
             "content": content
         }
         formData.append('jsonData', JSON.stringify(jsonData));
-
+        console.log(jsonData);
         images.forEach((image, index) => {
-            formData.append(image, image);
+            formData.append("image", image);
         });
-
+        console.log(formData);
         const URL = "http://localhost:3001/upload"
         const config = {
             headers: {

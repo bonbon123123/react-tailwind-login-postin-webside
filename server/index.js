@@ -48,8 +48,9 @@ app.post('/image', (req, res) => {
 
 app.post('/profilePicture', (req, res) => {
     let data = req.body;
-    console.log(JSON.stringify(data.image));
-    const r = fs.createReadStream('./server/static/profile-pictures/' + data.image + ".jpg") // or any other way to get a readable stream
+    console.log("imma get profile picture: ");
+    console.log(data.image)
+    const r = fs.createReadStream('./server/static/profile-pictures/' + data.image) // or any other way to get a readable stream
     const ps = new stream.PassThrough() // <---- this makes a trick with stream error handling
     stream.pipeline(
         r,
@@ -81,67 +82,55 @@ let profileStorage = multer.diskStorage({
 let profileUpload = multer({ storage: profileStorage });
 
 app.post('/addUser', profileUpload.single('image'), (req, res) => {
-    console.log(JSON.parse(req.body.jsonData));
-    console.log(req.file.filename);
-    let imageName = uuidv4();
-    fs.rename(path.join(__dirname, './static', 'profile-pictures', req.file.filename),
-        path.join(__dirname, './static', 'profile-pictures', imageName + path.extname(req.file.filename)), function (err) {
-            if (err) console.log('ERROR: ' + err);
-        });
-
     let myData = JSON.parse(req.body.jsonData);
-    console.log(myData.login)
-    let prototypeUser =
-    {
-        _id: uuidv4(),
-        login: myData.login,
-        password: myData.password,
-        first_name: myData.first_name,
-        last_name: myData.last_name,
-        bio: myData.bio,
-        role: myData.role,
-        created_at: myData.created_at,// Will not be saved
-        created_by: myData.created_by,
-        first_login: myData.first_login,
-        image: imageName,
-        department: myData.department,
-        status: myData.status
-    };
 
-    console.log(prototypeUser)
+    dbUsers.find({ login: myData.login }, function (err, docs) {
+        let myDocs = JSON.stringify(docs);
+        if (myDocs == []) {
+            let imageName = uuidv4() + path.extname(req.file.filename);
 
-    dbUsers.insert(prototypeUser, function (err, newDoc) {   // Callback is optional
-        // newDoc is the newly inserted document, including its _id
-        // newDoc has no key called notToBeSaved since its value was undefined
+            fs.rename(path.join(__dirname, './static', 'profile-pictures', req.file.filename),
+                path.join(__dirname, './static', 'profile-pictures', imageName), function (err) {
+                    if (err) console.log('ERROR: ' + err);
+                });
+
+
+
+            let prototypeUser =
+            {
+                _id: uuidv4(),
+                login: myData.login,
+                password: myData.password,
+                first_name: myData.first_name,
+                last_name: myData.last_name,
+                bio: myData.bio,
+                role: myData.role,
+                created_at: myData.created_at,// Will not be saved
+                created_by: myData.created_by,
+                first_login: myData.first_login,
+                image: imageName,
+                department: myData.department,
+                status: "not_activated"
+            };
+
+
+
+            dbUsers.insert(prototypeUser, function (err, newDoc) {   // Callback is optional
+                // newDoc is the newly inserted document, including its _id
+                // newDoc has no key called notToBeSaved since its value was undefined
+            });
+        } else {
+            res.end("username taken")
+            console.log("user not added");
+        }
+
     });
+
+
 
 
 });
-app.post('/addPost', (req, res) => {
-    let myData = req.body;
-    let prototypePost =
-    {
-        _id: uuidv4(),
-        created_at: myData.created_at,// Will not be saved
-        created_by: myData.created_by,
-        updated_at: myData.updated_at,
-        updated_by: myData.updated_by,
-        text: myData.text,
-        images: myData.images,
-        permission: myData.permission,
-        status: myData.status
-    };
 
-
-
-    dbPosts.insert(prototypePost, function (err, newDoc) {   // Callback is optional
-        // newDoc is the newly inserted document, including its _id
-        // newDoc has no key called notToBeSaved since its value was undefined
-    });
-    res.end(JSON.stringify(["ok", "dziala"]));
-
-
-})
 
 app.post("/login", (req, res) => {
     let data = req.body;
@@ -154,29 +143,35 @@ app.post("/login", (req, res) => {
     });
 });
 
-app.get("/getMyPosts", (req, res) => {
+app.post("/getMyPosts", (req, res) => {
+    dbPosts.loadDatabase(function (err) {    // Callback is optional
+        // Now commands will be executed
+    });
     let data = req.body;
-
+    console.log("data:", data)
     dbPosts.find({ created_by: data.created_by }, function (err, docs) {
-        console.log(docs);
+
         res.send(JSON.stringify(docs));
     });
 });
 
 app.post("/getPostsWithMyPremission", (req, res) => {
+    dbPosts.loadDatabase(function (err) {    // Callback is optional
+        // Now commands will be executed
+    });
     let data = req.body;
-    console.log(data);
-    console.log(data.role);
+    console.log(data.role)
     dbPosts.find({ permission: data.role }, function (err, docs) {
-        console.log("getPostsWithMyPremission");
+
         res.send(JSON.stringify(docs));
     });
 });
 
 app.get("/getPosts", (req, res) => {
+    dbPosts.loadDatabase(function (err) {    // Callback is optional
+        // Now commands will be executed
+    });
     dbPosts.find({}, function (err, docs) {
-        console.log("getPosts");
-        console.log(docs);
         res.send(JSON.stringify(docs));
     });
 });
@@ -186,43 +181,55 @@ app.get("/getPosts", (req, res) => {
 const storage = multer.diskStorage({
     destination: path.join(__dirname, './static', 'post-pictures'),
     filename: function (req, file, cb) {
+        console.log("it is mulling time")
         // null as first argument means no error
-        cb(null, Date.now() + '-' + file.originalname)
+        cb(null, file.originalname)
     }
 })
 
 let upload = multer({ storage: storage });
 
 app.post('/upload', upload.array('image'), async (req, res) => {
+    console.log("it is uploading time: ", JSON.parse(req.body.jsonData));
     try {
-        console.log(JSON.parse(req.body.jsonData));
-        console.log(req.files[0].filename);
+
         let arrayOfImages = []
-        if (filename !== undefined) {
+
+        console.log(req.files)
+        console.log(req.files[0])
+        if (req.files[0] !== undefined) {
+            console.log("there is file")
+
 
             req.files.forEach(element => {
-                let myFilename = uuidv4() + ".png";
-                arrayOfImages.push(myFilename);
-                fs.rename(path.join(__dirname, './static', 'post-pictures', element.filename),
-                    path.join(__dirname, './static', 'post-pictures', myFilename), function (err) {
-                        if (err) console.log('ERROR: ' + err);
-                    });
+                if (element.originalname !== undefined) {
+                    let myFilename = uuidv4() + path.extname(element.originalname);
+                    // console.log(element.originalname);
+                    // console.log(element.filename);
+                    // console.log(element);
+                    arrayOfImages.push(myFilename);
+                    fs.rename(path.join(__dirname, './static', 'post-pictures', element.originalname),
+                        path.join(__dirname, './static', 'post-pictures', myFilename), function (err) {
+                            if (err) console.log('ERROR: ' + err);
+                        });
+                }
             });
-        }
+            console.log("array of images: ", arrayOfImages)
 
+        }
 
 
         let prototypePost =
         {
             _id: uuidv4(),
-            created_at: "myData.created_at",// Will not be saved
+            created_at: Date.now(),// Will not be saved
             created_by: JSON.parse(req.body.jsonData).user,
-            updated_at: "myData.updated_at",
+            updated_at: Date.now(),
             updated_by: JSON.parse(req.body.jsonData).user,
             text: JSON.parse(req.body.jsonData).content,
             images: arrayOfImages,
-            permission: 'myData.permission',
-            status: 'myData.status',
+            permission: JSON.parse(req.body.jsonData).permission,
+            status: 'posted',
             title: JSON.parse(req.body.jsonData).title
         };
 
@@ -233,9 +240,9 @@ app.post('/upload', upload.array('image'), async (req, res) => {
             // newDoc has no key called notToBeSaved since its value was undefined
         });
 
-        const classifiedsadd = {
-            image: req.files[0].filename
-        };
+        // const classifiedsadd = {
+        //     image: req.files[0].filename
+        // };
 
         res.send("ok")
 

@@ -16,7 +16,9 @@ export function UserProfile(props) {
 
 
     useEffect(() => {
-        fetch('/getMyPosts', {
+        console.log("trying to get posts")
+        console.log(token._id)
+        fetch('http://localhost:3001/getMyPosts', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -28,6 +30,7 @@ export function UserProfile(props) {
             .then(response => response.json())
             .then(data => {
                 setPosts(data);
+                console.log("data of posts: ", data)
             })
             .catch(error => {
                 console.error(error);
@@ -35,9 +38,6 @@ export function UserProfile(props) {
     }, []);
 
 
-
-    console.log(token)
-    console.log(token.image)
     const postComponents =
         posts.length > 0 ? (
 
@@ -52,7 +52,8 @@ export function UserProfile(props) {
     const [profilePicture, setIProfilePicture] = useState(null);
 
     useEffect(() => {
-        fetch('/profilePicture', {
+        console.log("i try to get profilepicture")
+        fetch('http://localhost:3001/profilePicture', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

@@ -102,8 +102,9 @@ function App() {
             <Route path="/login" element={<Login setToken={setToken} />} />
             <Route path="/profile" element={token ? <Profile token={token} /> : <Login setToken={setToken} />} />
             <Route path="/main" element={token ? <Main token={token} /> : <Login setToken={setToken} />} />
-            {/* <Route path="/admin" element={token.role === "admin" ? <Admin token={token} /> : <Login setToken={setToken} />} /> */}
-            <Route path="/admin" element={<Admin token={token} />} />
+            <Route path="/admin" element={token.role === "admin" ? <Admin token={token} /> : <Profile token={token} />} /> 
+
+            {/* <Route path="/admin" element={<Admin token={token} />} /> */}
           </Routes>
         </Router>
 
@@ -114,8 +115,7 @@ function App() {
             <Route path="/login" element={<Login setToken={setToken} />} />
             <Route path="/profile" element={token ? <Profile token={token} /> : <Login setToken={setToken} />} />
             <Route path="/main" element={token ? <Main token={token} /> : <Login setToken={setToken} />} />
-            {/* <Route path="/admin" element={token.role === "admin" ? <Admin token={token} /> : <Login setToken={setToken} />} /> */}
-            <Route path="/admin" element={<Admin token={token} />} />
+
           </Routes>
         </Router>
       }
