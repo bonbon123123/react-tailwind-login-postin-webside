@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import './App.css';
+
 import Post from '../components/Post';
 import PostArea from '../components/PostArea';
-
+import PasswordChange from '../components/passwordChane';
 
 
 
@@ -11,13 +12,16 @@ import PostArea from '../components/PostArea';
 export function UserProfile(props) {
     const { token } = props;
     const [posts, setPosts] = useState([]);
+    const [currentTop, setTop] = useState("");
+    const [profilePicture, setIProfilePicture] = useState(null);
+    
+    function handleButtons(topState) {
 
+        setTop(topState);
 
-
+    }
 
     useEffect(() => {
-        console.log("trying to get posts")
-        console.log(token._id)
         fetch('http://localhost:3001/getMyPosts', {
             method: 'POST',
             headers: {
@@ -30,12 +34,24 @@ export function UserProfile(props) {
             .then(response => response.json())
             .then(data => {
                 setPosts(data);
-                console.log("data of posts: ", data)
+                // console.log("data of posts: ", data)
             })
             .catch(error => {
                 console.error(error);
             });
     }, []);
+
+    function topComponent() {
+        switch (currentTop) {
+            case 'post':
+                return <PostArea user={token._id} handleButtons={handleButtons} />
+            case 'password':
+                return <PasswordChange token={token} handleButtons={handleButtons} />
+            case 'edit':
+                return <PasswordChange />
+        }
+
+    }
 
 
     const postComponents =
@@ -49,10 +65,10 @@ export function UserProfile(props) {
         );
 
 
-    const [profilePicture, setIProfilePicture] = useState(null);
+
 
     useEffect(() => {
-        console.log("i try to get profilepicture")
+
         fetch('http://localhost:3001/profilePicture', {
             method: 'POST',
             headers: {
@@ -86,7 +102,30 @@ export function UserProfile(props) {
                         alt="Profile picture"
                     />
                 </div>
-                <div className="flex flex-row mt-10">
+
+                <div className="flex flex-row mt-10 justify-around">
+                    <button
+                        onClick={() => handleButtons('edit')}
+                        type="submit"
+                        className="mb-2 bg-blue-500 text-white px-1 py-2 rounded-md hover:bg-blue-600 transition-colors duration-300">
+
+                        Edit Profile
+                    </button>
+                    <button
+                        type="submit"
+                        onClick={() => handleButtons('password')}
+                        className="mb-2 bg-blue-500 text-white px-1 py-2 rounded-md hover:bg-blue-600 transition-colors duration-300">
+                        Change password
+                    </button>
+
+                </div>
+                <div className="flex flex-row mt-1 justify-around">
+                    <button
+                        type="submit"
+                        onClick={() => handleButtons('post')}
+                        className="mb-2 bg-blue-500 text-white px-1 py-2 rounded-md hover:bg-blue-600 transition-colors duration-300">
+                        Make Post
+                    </button>
                 </div>
                 <div className="flex flex-col justify-center mt-10">
                     <h2 className="text-2xl font-medium text-white">{token.first_name} {token.last_name}</h2>
@@ -107,7 +146,8 @@ export function UserProfile(props) {
 
             <div className="flex flex-col w-3/4 h-full p-10 bg-gray-800 overflow-y-scroll" >
                 <div >
-                    <PostArea user={token._id} />
+                    {topComponent()}
+
                 </div>
                 {<div >{postComponents}</div>}
             </div>

@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 
 export default function Post(props) {
-
+    const { token } = props;
     const { content } = props;
-    const [imageUrl, setImageUrl] = useState(null);
+    const [imageUrl, setIProfilePicture] = useState(null);
     const [clicks, setClicks] = useState(0);
 
     const cangePicture = () => {
@@ -16,28 +16,19 @@ export default function Post(props) {
 
     useEffect(() => {
 
-        if (clicks == content.images.length) {
-            setClicks(0);
-        }
-        if (content.images[clicks] !== undefined) {
-
-
-            fetch('/image', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ image: content.images[clicks] })
-            })
-                .then(response => response.blob())
-                .then(blob => {
-                    const imageUrl = URL.createObjectURL(blob);
-                    setImageUrl(imageUrl);
-                });
-        }
-
-    }, [clicks]);
-
+        fetch('http://localhost:3001/profilePicture', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ image: token.image })
+        })
+            .then(response => response.blob())
+            .then(blob => {
+                const imageUrl = URL.createObjectURL(blob);
+                setIProfilePicture(imageUrl);
+            });
+    }, [token._id]);
 
 
     return (

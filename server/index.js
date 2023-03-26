@@ -48,8 +48,7 @@ app.post('/image', (req, res) => {
 
 app.post('/profilePicture', (req, res) => {
     let data = req.body;
-    console.log("imma get profile picture: ");
-    console.log(data.image)
+
     const r = fs.createReadStream('./server/static/profile-pictures/' + data.image) // or any other way to get a readable stream
     const ps = new stream.PassThrough() // <---- this makes a trick with stream error handling
     stream.pipeline(
@@ -134,11 +133,31 @@ app.post('/addUser', profileUpload.single('image'), (req, res) => {
 
 app.post("/login", (req, res) => {
     let data = req.body;
-    //console.log(JSON.stringify(data));
+
 
     dbUsers.find({ login: data.login, password: data.password }, function (err, docs) {
-        //console.log(docs);
+        if (docs.status == "not_activated") {
+            dbUsers.update({ login: data.login, password: data.password }, { $set: { first_login: Date.now() } }, {}, function (err, numReplaced) {
 
+            })
+            res.send(JSON.stringify(docs));
+        } else {
+            dbUsers.update({ login: data.login, password: data.password }, { $set: { status: "online", first_login: Date.now() } }, {}, function (err, numReplaced) {
+
+            })
+            res.send(JSON.stringify(docs));
+
+        }
+
+
+    });
+});
+
+app.post("/getUsers", (req, res) => {
+    let data = req.body;
+
+
+    dbPosts.find({}, { password: 0, _id: 0 }, function (err, docs) {
         res.send(JSON.stringify(docs));
     });
 });
@@ -148,7 +167,7 @@ app.post("/getMyPosts", (req, res) => {
         // Now commands will be executed
     });
     let data = req.body;
-    console.log("data:", data)
+
     dbPosts.find({ created_by: data.created_by }, function (err, docs) {
 
         res.send(JSON.stringify(docs));
@@ -160,7 +179,7 @@ app.post("/getPostsWithMyPremission", (req, res) => {
         // Now commands will be executed
     });
     let data = req.body;
-    console.log(data.role)
+
     dbPosts.find({ permission: data.role }, function (err, docs) {
 
         res.send(JSON.stringify(docs));
@@ -181,7 +200,7 @@ app.get("/getPosts", (req, res) => {
 const storage = multer.diskStorage({
     destination: path.join(__dirname, './static', 'post-pictures'),
     filename: function (req, file, cb) {
-        console.log("it is mulling time")
+
         // null as first argument means no error
         cb(null, file.originalname)
     }
@@ -190,7 +209,7 @@ const storage = multer.diskStorage({
 let upload = multer({ storage: storage });
 
 app.post('/upload', upload.array('image'), async (req, res) => {
-    console.log("it is uploading time: ", JSON.parse(req.body.jsonData));
+
     try {
 
         let arrayOfImages = []
@@ -198,15 +217,13 @@ app.post('/upload', upload.array('image'), async (req, res) => {
         console.log(req.files)
         console.log(req.files[0])
         if (req.files[0] !== undefined) {
-            console.log("there is file")
+
 
 
             req.files.forEach(element => {
                 if (element.originalname !== undefined) {
                     let myFilename = uuidv4() + path.extname(element.originalname);
-                    // console.log(element.originalname);
-                    // console.log(element.filename);
-                    // console.log(element);
+
                     arrayOfImages.push(myFilename);
                     fs.rename(path.join(__dirname, './static', 'post-pictures', element.originalname),
                         path.join(__dirname, './static', 'post-pictures', myFilename), function (err) {
@@ -214,7 +231,7 @@ app.post('/upload', upload.array('image'), async (req, res) => {
                         });
                 }
             });
-            console.log("array of images: ", arrayOfImages)
+
 
         }
 
@@ -249,6 +266,39 @@ app.post('/upload', upload.array('image'), async (req, res) => {
     } catch (err) { console.log(err) }
 })
 
+app.post("/changePassword", (req, res) => {
+
+    let data = JSON.parse(req.body.jsonData);
+    // Find the user by login and password
+    dbUsers.update({ login: data.login, password: data.password }, { $set: { password: data.passwordOne } }, {}, function (err, numReplaced) {
+        if (err) {
+            res.status(500).send("Internal server error");
+            return;
+        } else if (numReplaced == 0) {
+            res.status(401).send("Invalid credentials");
+            return;
+        } else {
+            res.send("Password changed successfully");
+        }
+
+    });
+});
+
+app.post("/handleStatus", (req, res) => {
+
+    let data = JSON.parse(req.body.jsonData);
+    console.log("handling logining ", data.status)
+    // Find the user by login and password
+    dbUsers.update({ _id: data.user }, { $set: { status: data.status } }, {}, function (err, numReplaced) {
+        if (err) {
+            res.status(500).send("Internal server error");
+            return;
+        } else {
+            res.send("Logged Out");
+        }
+
+    });
+});
 app.listen(PORT, () => {
     console.log(`Server listening on ${PORT}`);
 });

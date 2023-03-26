@@ -12,7 +12,9 @@ export default function PasswordChange(props) {
     const [passwordTwo, setSecondPassword] = useState("");
 
     const handleLoginChange = (event) => {
+
         setLogin(event.target.value);
+
     };
     const handlePasswordChange = (event) => {
         setPassword(event.target.value);
@@ -29,29 +31,36 @@ export default function PasswordChange(props) {
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        const formData = new FormData();
-        let jsonData = {
-            login: login,
-            password: password,
-            passwordOne: passwordOne,
-            passwordTwo: passwordTwo,
-            status: "online",
-        }
-        formData.append('jsonData', JSON.stringify(jsonData));
 
-        const URL = "http://localhost:3001/changePassword"
-        const config = {
-            headers: {
-                'Content-Type': 'application/json',
+
+        if (token.login == login && token.password == password && passwordOne == passwordTwo && passwordOne != "") {
+            const formData = new FormData();
+            let jsonData = {
+                login: login,
+                password: password,
+                passwordOne: passwordOne,
+                status: "online",
             }
-        };
-        const result = await axios.post(URL, formData, config)
-        console.log(formData);
-        console.log("REsult: ", result);
+            formData.append('jsonData', JSON.stringify(jsonData));
+
+            const URL = "http://localhost:3001/changePassword"
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            };
+            const result = await axios.post(URL, formData, config)
+
+            sessionStorage.clear();
+            window.location.href = '/';
+        } else {
+            alert("wrong input")
+        }
+
     };
 
     return (
-        <div class="mx-auto max-w-7xl py-12 sm:px-2 sm:py-12 lg:px-2">
+        <div class="text-white mx-auto max-w-7xl py-12 sm:px-2 sm:py-12 lg:px-2">
             <div class="relative isolate overflow-hidden bg-gray-900 px-6 pt-16 shadow-2xl sm:rounded-3xl sm:px-16 md:pt-24  lg:gap-x-20 lg:px-24 lg:pt-0 grid grid-cols-1 gap-4">
                 <form onSubmit={handleSubmit} className="max-w-lg mx-auto">
                     <div className="my-2">
@@ -59,11 +68,11 @@ export default function PasswordChange(props) {
                             Login
                         </label>
                         <input
-                            type="login"
+                            type="text"
                             name="login"
                             value={login}
                             onChange={handleLoginChange}
-                            className="w-full p-2 border border-gray-400 rounded"
+                            className="w-full p-2 border border-gray-400 rounded text-black"
                         />
                     </div>
                     <div className="my-2">
@@ -75,7 +84,7 @@ export default function PasswordChange(props) {
                             name="password"
                             value={password}
                             onChange={handlePasswordChange}
-                            className="w-full p-2 border border-gray-400 rounded"
+                            className="w-full p-2 border border-gray-400 rounded text-black"
                         />
                     </div>
                     <div className="my-2">
@@ -87,7 +96,7 @@ export default function PasswordChange(props) {
                             name="passwordOne"
                             value={passwordOne}
                             onChange={handleFirstPassword}
-                            className="w-full p-2 border border-gray-400 rounded"
+                            className="w-full p-2 border border-gray-400 rounded text-black"
                         />
                     </div>
                     <div className="my-2">
@@ -99,13 +108,13 @@ export default function PasswordChange(props) {
                             name="passwordTwo"
                             value={passwordTwo}
                             onChange={handleSecondPassword}
-                            className="w-full p-2 border border-gray-400 rounded"
+                            className="w-full p-2 border border-gray-400 rounded text-black"
                         />
                     </div>
 
                     <div className="my-2">
                         <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">
-                            Add User
+                            Submit
                         </button>
                     </div>
                 </form>

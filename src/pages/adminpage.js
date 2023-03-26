@@ -2,16 +2,6 @@ import { useState } from "react";
 import PropTypes from 'prop-types';
 import axios from 'axios';
 
-async function addUser(raw) {
-    return fetch('http://localhost:3001/addUser', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: raw
-    })
-        .then(data => data.json())
-}
 
 export default function AdminPage(props) {
     const { token } = props;
