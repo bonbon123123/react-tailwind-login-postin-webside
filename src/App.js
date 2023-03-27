@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './App.css';
-import Login from './pages/loginpage';
-import Profile from './pages/userprofile';
-import Main from './pages/mainpage';
-import Admin from './pages/adminpage';
+import Login from './pages/loginPage';
+import Profile from './pages/userProfile';
+import Main from './pages/mainPage';
+import Admin from './pages/adminPage';
 import useToken from './useToken';
 import PasswordChange from './components/passwordChane';
 import axios from 'axios';
@@ -45,18 +45,18 @@ function App() {
 
   useEffect(() => {
     const handleBeforeUnload = async (event) => {
-      if (token) {
+      if (token && performance.navigation.type !== PerformanceNavigation.TYPE_RELOAD) {
         event.preventDefault();
         const confirmationMessage = await logout(token.user);
         event.returnValue = confirmationMessage;
       }
-
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [token]);
+
 
 
   return (

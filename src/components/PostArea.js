@@ -92,7 +92,7 @@ function PostArea(props) {
                             onChange={handlePermissionChange}
                             className="w-full p-2 border border-gray-400 rounded"
                         >
-                            <option value="">Select permissions</option>
+                            <option value="">Select Departament You adress</option>
                             <option value="user">User</option>
                             <option value="admin">Admin</option>
                         </select>

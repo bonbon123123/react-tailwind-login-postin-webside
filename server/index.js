@@ -29,6 +29,61 @@ var Datastore = require('nedb');
 
 dbUsers = new Datastore({ filename: __dirname + '/users', autoload: true });
 dbPosts = new Datastore({ filename: __dirname + '/posts', autoload: true });
+dbGroups = new Datastore({ filename: __dirname + '/groups', autoload: true });
+
+let groupStorage = multer.diskStorage({
+    destination: path.join(__dirname, './static', 'group-pictures'),
+    filename: function (req, file, cb) {
+        cb(null, file.originalname);
+    },
+});
+
+let groulUpload = multer({ storage: groupStorage });
+
+app.post('/addGroup', groulUpload.single('image'), (req, res) => {
+    let myData = JSON.parse(req.body.jsonData);
+
+    dbGroups.find({ login: myData.name }, function (err, docs) {
+        let myDocs = JSON.stringify(docs);
+        if (myDocs == []) {
+            let imageName = uuidv4() + path.extname(req.file.filename);
+
+            fs.rename(path.join(__dirname, './static', 'group-pictures', req.file.filename),
+                path.join(__dirname, './static', 'group-pictures', imageName), function (err) {
+                    if (err) console.log('ERROR: ' + err);
+                });
+
+
+
+            let prototypeGroup =
+            {
+                _id: uuidv4(),
+                name: myData.name,
+                description: myData.bio,
+                created_at: myData.created_at,
+                created_by: myData.created_by,
+                updated_by: myData.created_by,
+                image: imageName,
+                members: []
+            };
+
+
+
+            dbGroups.insert(prototypeGroup, function (err, newDoc) {   // Callback is optional
+                // newDoc is the newly inserted document, including its _id
+                // newDoc has no key called notToBeSaved since its value was undefined
+            });
+        } else {
+            res.end("group allready exist")
+            console.log("group not added");
+        }
+
+    });
+
+
+
+
+});
 
 app.post('/image', (req, res) => {
     let data = req.body;
@@ -155,9 +210,12 @@ app.post("/login", (req, res) => {
 
 app.post("/getUsers", (req, res) => {
     let data = req.body;
+    console.log("trying to get users")
 
+    dbUsers.find({}, { password: 0, _id: 0 }, function (err, docs) {
+        console.log(docs)
+        console.log(JSON.stringify(docs))
 
-    dbPosts.find({}, { password: 0, _id: 0 }, function (err, docs) {
         res.send(JSON.stringify(docs));
     });
 });
