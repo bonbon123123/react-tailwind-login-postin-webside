@@ -5,9 +5,10 @@ export default function User(props) {
     const { content } = props;
     const [imageUrl, setIProfilePicture] = useState(null);
 
-
+    // console.log(content[0]);
+    // console.log(content[0].image);
     useEffect(() => {
-
+        console.log("trying to fetch profile picture", content);
         fetch('http://localhost:3001/profilePicture', {
             method: 'POST',
             headers: {

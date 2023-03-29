@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 
@@ -13,6 +14,9 @@ export default function AdminPage(props) {
     const [bio, setBio] = useState();
     const [department, setDepartament] = useState("");
     const [role, setRole] = useState("");
+    const [group, setGroup] = useState("");
+    const [groups, setGroups] = useState([]);
+    const [groupNames, setGroupNames] = useState([]);
 
     const handleImageChange = (event) => {
         const newImage = event.target.files[0];
@@ -39,6 +43,37 @@ export default function AdminPage(props) {
     const handleRoleChange = (event) => {
         setRole(event.target.value);
     };
+    const handleGroupChange = (event) => {
+        setGroup(event.target.value);
+    };
+
+
+    React.useEffect(() => {
+        fetch('http://localhost:3001/getGroups', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+            .then(response => response.json())
+            .then(data => {
+                setGroups(data);
+            })
+            .catch(error => {
+                console.error(error);
+            })
+
+    }, []);
+
+    React.useEffect(() => {
+
+        groups.forEach(element => {
+            if (!groupNames.includes(element.name)) {
+                setGroupNames(prevGroupNames => [...prevGroupNames, element.name]);
+            }
+        });
+        setGroup(groupNames[0])
+    }, [groups]);
 
 
 
@@ -54,6 +89,7 @@ export default function AdminPage(props) {
             last_name: last_name,
             bio: bio,
             role: role,
+            group: group,
             created_at: Date.now(),
             created_by: token.id,
             first_login: "",
@@ -153,6 +189,23 @@ export default function AdminPage(props) {
                 </select>
             </div>
             <div className="my-2">
+                <label htmlFor="group" className="block mb-1 font-bold">
+                    Group
+                </label>
+                <select
+                    name="group"
+                    value={group}
+                    onChange={handleGroupChange}
+                    className="w-full p-2 border border-gray-400 rounded"
+                >
+                    {groupNames.map((groupName, index) => (
+                        <option key={index} value={groupName}>
+                            {groupName}
+                        </option>
+                    ))}
+                </select>
+            </div>
+            <div className="my-2">
                 <label htmlFor="department" className="block mb-1 font-bold">
                     Departament
                 </label>
@@ -162,7 +215,7 @@ export default function AdminPage(props) {
                     onChange={handleDepartamentChange}
                     className="w-full p-2 border border-gray-400 rounded"
                 >
-                    <option value="">Select a department</option>
+                    <option value="testers">Select a department</option>
                     <option value="administration">administration</option>
                     <option value="testers">testers</option>
                 </select>

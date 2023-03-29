@@ -3,56 +3,28 @@ import './App.css';
 import Post from '../components/Post';
 import PostArea from '../components/PostArea';
 import User from '../components/User'
-export function UserProfile(props) {
+import MakeGroup from '../components/MakeGroup'
+import UserBar from '../components/UserBar'
+
+export function Group(props) {
     const { token } = props;
-    const [posts, setPosts] = useState([]);
-    const [users, setUsers] = useState([]);
-    console.log(token.role);
+    const [groups, setGroups] = useState([]);
+
+    const [groupNames, setGroupNames] = useState([]);
 
     React.useEffect(() => {
-        if (token.role === "admin") {
-            fetch('http://localhost:3001/getPosts', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    setPosts(data);
-                })
-                .catch(error => {
-                    console.error(error);
-                })
-
-        } else {
-            fetch('http://localhost:3001/getPostsWithMyPremission', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    role: token.role
-                })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    setPosts(data);
-                })
-                .catch(error => {
-                    console.error(error);
-                })
-        };
-        fetch('http://localhost:3001/getUsers', {
+        fetch('http://localhost:3001/getGroups', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
-            }
+            },
+            body: JSON.stringify({
+                role: token.role
+            })
         })
             .then(response => response.json())
             .then(data => {
-                console.log(data);
-                setUsers(data);
+                setGroups(data);
             })
             .catch(error => {
                 console.error(error);
@@ -60,50 +32,63 @@ export function UserProfile(props) {
 
     }, []);
 
-    const postComponents =
-        posts.length > 0 ? (
+    React.useEffect(() => {
+        groups.forEach(element => {
+            if (!groupNames.includes(element.name)) {
+                setGroupNames(prevGroupNames => [...prevGroupNames, element.name]);
+            }
+        });
+    }, [groups]);
 
-            posts.map((post, index) => {
-                return <Post key={index} content={post} />;
-            })
-        ) : (
-            <p>Loading posts...</p>
-        );
-    const userComponents =
-        users.length > 0 ? (
 
-            users.map((users, index) => {
-                return <User key={index} content={users} />;
-            })
-        ) : (
-            <p>Loading Users...</p>
-        );
+
+    const userBars = groups.length > 0 ? (
+        groups.map((group, index) => {
+            return (
+                <div className="w-full" key={index}>
+                    <div htmlFor="name" className="block mb-1 font-bold text-white">
+                        {group.name}
+                    </div>
+                    <UserBar content={group} />
+                </div>
+            );
+        })
+    ) : (
+        <p>Loading posts...</p>
+    );
+
+    // const postComponents =
+    //     posts.length > 0 ? (
+
+    //         posts.map((post, index) => {
+    //             return <Post key={index} content={post} />;
+    //         })
+    //     ) : (
+    //         <p>Loading posts...</p>
+    //     );
+    // const userComponents =
+    //     users.length > 0 ? (
+
+    //         users.map((users, index) => {
+    //             return <User key={index} content={users} />;
+    //         })
+    //     ) : (
+    //         <p>Loading Users...</p>
+    //     );
 
 
     return (
-        <div className="flex flex-row h-screen bg-gray-800 ">
-            <div className="flex flex-col w-1/4 h-full p-1 bg-gray-900 rounded-lg overflow-y-scroll">
-                {userComponents}
-
-                {/* other sidebar components */}
-
-
-
+        <div className="flex flex-col h-screen bg-gray-800 ">
+            <div>
+                <MakeGroup token={token} />
             </div>
-            {/* Right column */}
-
-            <div className="flex flex-col w-3/4 h-full p-10 bg-gray-800 overflow-y-scroll" >
-                <div >
-                    <PostArea user={token._id} />
-                </div>
-                {<div >{postComponents}</div>}
+            <div className="flex flex-row h-screen bg-gray-800 ">
+                {userBars}
             </div>
+
         </div>
-
-
-
 
     )
 }
 
-export default UserProfile;
+export default Group;

@@ -44,8 +44,11 @@ app.post('/addGroup', groulUpload.single('image'), (req, res) => {
     let myData = JSON.parse(req.body.jsonData);
 
     dbGroups.find({ login: myData.name }, function (err, docs) {
+
         let myDocs = JSON.stringify(docs);
-        if (myDocs == []) {
+        console.log("myDocs: ", myDocs[0]);
+        if (myDocs == "[]") {
+            console.log(myData);
             let imageName = uuidv4() + path.extname(req.file.filename);
 
             fs.rename(path.join(__dirname, './static', 'group-pictures', req.file.filename),
@@ -59,7 +62,7 @@ app.post('/addGroup', groulUpload.single('image'), (req, res) => {
             {
                 _id: uuidv4(),
                 name: myData.name,
-                description: myData.bio,
+                description: myData.description,
                 created_at: myData.created_at,
                 created_by: myData.created_by,
                 updated_by: myData.created_by,
@@ -67,7 +70,7 @@ app.post('/addGroup', groulUpload.single('image'), (req, res) => {
                 members: []
             };
 
-
+            console.log(prototypeGroup);
 
             dbGroups.insert(prototypeGroup, function (err, newDoc) {   // Callback is optional
                 // newDoc is the newly inserted document, including its _id
@@ -140,7 +143,7 @@ app.post('/addUser', profileUpload.single('image'), (req, res) => {
 
     dbUsers.find({ login: myData.login }, function (err, docs) {
         let myDocs = JSON.stringify(docs);
-        if (myDocs == []) {
+        if (myDocs == "[]") {
             let imageName = uuidv4() + path.extname(req.file.filename);
 
             fs.rename(path.join(__dirname, './static', 'profile-pictures', req.file.filename),
@@ -149,10 +152,10 @@ app.post('/addUser', profileUpload.single('image'), (req, res) => {
                 });
 
 
-
+            userId = uuidv4();
             let prototypeUser =
             {
-                _id: uuidv4(),
+                _id: userId,
                 login: myData.login,
                 password: myData.password,
                 first_name: myData.first_name,
@@ -172,6 +175,27 @@ app.post('/addUser', profileUpload.single('image'), (req, res) => {
             dbUsers.insert(prototypeUser, function (err, newDoc) {   // Callback is optional
                 // newDoc is the newly inserted document, including its _id
                 // newDoc has no key called notToBeSaved since its value was undefined
+            });
+            // retrieve the current group
+            console.log(myData)
+            dbGroups.findOne({ name: myData.group }, function (err, group) {
+                // check if the group exists
+                if (!group) {
+                    console.log('Group not found');
+                    return;
+                }
+
+                // get the current users array and add the new user ID to it
+                let members = group.members || [];
+                members.push(userId);
+
+                // update the group with the new users array
+                dbGroups.update({ name: myData.group }, { $set: { members } }, {}, function (err, numReplaced) {
+                    console.log(numReplaced)
+                });
+            });
+            dbGroups.loadDatabase(function (err) {    // Callback is optional
+                // Now commands will be executed
             });
         } else {
             res.end("username taken")
@@ -210,11 +234,50 @@ app.post("/login", (req, res) => {
 
 app.post("/getUsers", (req, res) => {
     let data = req.body;
-    console.log("trying to get users")
+
 
     dbUsers.find({}, { password: 0, _id: 0 }, function (err, docs) {
-        console.log(docs)
-        console.log(JSON.stringify(docs))
+        // console.log(docs)
+        // console.log(JSON.stringify(docs))
+
+        res.send(JSON.stringify(docs));
+    });
+});
+
+app.post("/getUsersFromGroup", (req, res) => {
+    dbUsers.loadDatabase(function (err) {    // Callback is optional
+        // Now commands will be executed
+    });
+    let data = req.body;
+    let dataToSend = [];
+    //console.log("i am fetching with that data: ");
+    //console.log(data.id)
+    dbGroups.findOne({ _id: data.id }, function (err, group) {
+        // console.log("group found");
+        // console.log(group);
+
+        group.members.forEach(element => {
+
+            dbUsers.find({ _id: element }, { password: 0, _id: 0 }, function (err, docs) {
+                dataToSend.push(docs)
+                if (group.members.length == dataToSend.length) {
+                    res.send(JSON.stringify(dataToSend));
+                } 
+            });
+        });
+
+    });
+
+
+});
+
+app.post("/getGroups", (req, res) => {
+    let data = req.body;
+
+
+    dbGroups.find({}, function (err, docs) {
+        // console.log(docs)
+        // console.log(JSON.stringify(docs))
 
         res.send(JSON.stringify(docs));
     });
@@ -272,8 +335,8 @@ app.post('/upload', upload.array('image'), async (req, res) => {
 
         let arrayOfImages = []
 
-        console.log(req.files)
-        console.log(req.files[0])
+        // console.log(req.files)
+        // console.log(req.files[0])
         if (req.files[0] !== undefined) {
 
 
@@ -345,7 +408,7 @@ app.post("/changePassword", (req, res) => {
 app.post("/handleStatus", (req, res) => {
 
     let data = JSON.parse(req.body.jsonData);
-    console.log("handling logining ", data.status)
+    //console.log("handling logining ", data.status)
     // Find the user by login and password
     dbUsers.update({ _id: data.user }, { $set: { status: data.status } }, {}, function (err, numReplaced) {
         if (err) {

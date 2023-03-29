@@ -7,6 +7,7 @@ import Main from './pages/mainPage';
 import Admin from './pages/adminPage';
 import useToken from './useToken';
 import PasswordChange from './components/passwordChane';
+import Group from "./pages/groupPage"
 import axios from 'axios';
 
 
@@ -82,6 +83,14 @@ function App() {
                 <div class="hidden w-full md:block md:w-auto" id="navbar-default">
                   <div class="flex flex-col p-4 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
 
+                    <div className="ml-4">
+                      <Link
+                        to="/group"
+                        className="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-gray-900 hover:bg-white mt-4 lg:mt-0"
+                      >
+                        Group
+                      </Link>
+                    </div>
 
                     {token.role === "admin" ?
                       <div className="ml-4">
@@ -136,7 +145,7 @@ function App() {
               <Route path="/profile" element={token ? <Profile token={token} /> : <Login setToken={setToken} />} />
               <Route path="/main" element={token ? <Main token={token} /> : <Login setToken={setToken} />} />
               <Route path="/admin" element={token.role === "admin" ? <Admin token={token} /> : <Profile token={token} />} />
-
+              <Route path="/group" element={token ? <Group token={token} /> : <Login setToken={setToken} />} />
               {/* <Route path="/admin" element={<Admin token={token} />} /> */}
             </Routes>
           </Router>
@@ -148,6 +157,7 @@ function App() {
             <Route path="/login" element={<Login setToken={setToken} />} />
             <Route path="/profile" element={token ? <Profile token={token} /> : <Login setToken={setToken} />} />
             <Route path="/main" element={token ? <Main token={token} /> : <Login setToken={setToken} />} />
+            <Route path="/group" element={token ? <Group token={token} /> : <Login setToken={setToken} />} />
 
           </Routes>
         </Router>

@@ -5,15 +5,17 @@ import axios from 'axios';
 function PostArea(props) {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
-    const [permission, setPermission] = useState("");
     const [images, setImages] = useState([]);
     const { user } = props;
+    const [group, setGroup] = useState("");
+    const [groups, setGroups] = useState([]);
+    const [groupNames, setGroupNames] = useState([]);
 
     const handleTitleChange = (event) => {
         setTitle(event.target.value);
     };
-    const handlePermissionChange = (event) => {
-        setPermission(event.target.value);
+    const handleGroupChange = (event) => {
+        setGroup(event.target.value);
     };
     const handleContentChange = (event) => {
         setContent(event.target.value);
@@ -30,7 +32,7 @@ function PostArea(props) {
         let jsonData = {
             "user": user,
             "title": title,
-            "permission": permission,
+            "permission": group,
             "content": content
         }
         formData.append('jsonData', JSON.stringify(jsonData));
@@ -49,6 +51,32 @@ function PostArea(props) {
         console.log(formData);
         console.log("REsult: ", result);
     }
+    React.useEffect(() => {
+        fetch('http://localhost:3001/getGroups', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+            .then(response => response.json())
+            .then(data => {
+                setGroups(data);
+            })
+            .catch(error => {
+                console.error(error);
+            })
+
+    }, []);
+
+    React.useEffect(() => {
+
+        groups.forEach(element => {
+            if (!groupNames.includes(element.name)) {
+                setGroupNames(prevGroupNames => [...prevGroupNames, element.name]);
+            }
+        });
+        setGroup(groupNames[0])
+    }, [groups]);
 
 
     return (
@@ -83,18 +111,20 @@ function PostArea(props) {
                         />
                     </div>
                     <div className="mt-0 text-2xl leading-8 ">
-                        <label htmlFor="content" className="block font-medium mb-1 text-gray-300">
-                            permission
+                        <label htmlFor="group" className="block font-medium mb-1 text-gray-300">
+                            target group
                         </label>
                         <select
-                            name="permission"
-                            value={permission}
-                            onChange={handlePermissionChange}
+                            name="group"
+                            value={group}
+                            onChange={handleGroupChange}
                             className="w-full p-2 border border-gray-400 rounded"
                         >
-                            <option value="">Select Departament You adress</option>
-                            <option value="user">User</option>
-                            <option value="admin">Admin</option>
+                            {groupNames.map((groupName, index) => (
+                                <option key={index} value={groupName}>
+                                    {groupName}
+                                </option>
+                            ))}
                         </select>
                     </div>
 
