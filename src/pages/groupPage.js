@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import './App.css';
-import Post from '../components/Post';
-import PostArea from '../components/PostArea';
-import User from '../components/User'
+import GroupEdit from '../components/groupEdit'
 import MakeGroup from '../components/MakeGroup'
 import UserBar from '../components/UserBar'
 
@@ -12,6 +10,8 @@ export function Group(props) {
     const [users, setUsers] = useState([]);
     const [usersReady, setReady] = useState([]);
     const [groupNames, setGroupNames] = useState([]);
+    const [groupEdited, setEditedGroup] = useState(null);
+
 
     React.useEffect(() => {
         fetch('http://localhost:3001/getGroups', {
@@ -76,8 +76,17 @@ export function Group(props) {
         });
 
         setReady(groupedUsers);
-        console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
     }, [groups]);
+
+
+    function choseEdit(groupToEdit) {
+        groups.forEach(group => {
+            if (group.name == groupToEdit)
+                setEditedGroup(group);
+        });
+
+
+    }
 
     const userBars = groups.length > 0 ? (
         groupNames.map((groupName, index) => { // iterate over group names instead of users
@@ -85,9 +94,14 @@ export function Group(props) {
 
             return (
                 <div className="w-full" key={index}>
-                    <div htmlFor="name" className="block mb-1 font-bold text-white">
-                        {groupName} {/* display the group name */}
-                    </div>
+                    <div className="flex flex-row">
+                        <div className="rounded-full bg-blue-400 block mb-1 font-bold text-white py-2 px-4" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', flex: 1 }}>
+                            {groupName} {/* display the group name */}
+                        </div>
+
+                        <button className="rounded-full bg-blue-500 text-white font-bold py-2 px-4 mb-1" onClick={() => choseEdit(groupName)}>EDIT</button>
+
+                    </div >
                     <UserBar content={group} />
                 </div>
             );
@@ -102,7 +116,8 @@ export function Group(props) {
     return (
         <div className="flex flex-col h-screen bg-gray-800 ">
             <div>
-                <MakeGroup token={token} />
+                <GroupEdit token={token} group={groupEdited} users={users} />
+                {/* <MakeGroup token={token} /> */}
             </div>
             <div className="flex flex-row h-screen bg-gray-800 ">
                 {userBars}

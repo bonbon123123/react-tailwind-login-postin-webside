@@ -33,11 +33,11 @@ export default function User(props) {
 
 
         <div className={content.status == "not_activated" ?
-            "flex items-center bg-red-800 space-x-4 mb-8 shadow-2xl sm:rounded-2xl"
+            "overflow-x-scroll flex items-center bg-red-800 space-x-4 mb-8 shadow-2xl sm:rounded-2xl  w-full h-full"
             :
-            "flex items-center bg-gray-800 space-x-4 mb-8 shadow-2xl sm:rounded-2xl"}>
+            "overflow-x-scroll flex items-center bg-gray-800 space-x-4 mb-8 shadow-2xl sm:rounded-2xl  w-full h-full"}>
             {imageUrl && (
-                <img src={imageUrl} alt="Profile Picture" className="w-12 h-12 rounded-full" />
+                <img src={imageUrl} alt="Profile Picture" className="ml-2 w-12 h-12 rounded-full" />
             )}
             <div className="text-white">
                 <p className="text-lg font-bold">{content.first_name}</p>

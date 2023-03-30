@@ -203,10 +203,6 @@ app.post('/addUser', profileUpload.single('image'), (req, res) => {
         }
 
     });
-
-
-
-
 });
 
 
@@ -275,7 +271,62 @@ app.post("/getUsersFromGroup", (req, res) => {
     });
 });
 
+app.post("/addUserToGroup", (req, res) => {
 
+    let data = req.body;
+    console.log(data);
+    dbGroups.findOne({ name: data.group }, function (err, group) {
+        // check if the group exists
+        if (!group) {
+            console.log('Group not found');
+            return;
+        }
+
+        // get the current users array and add the new user ID to it
+        let members = group.members || [];
+        members.push(data.user);
+
+        // update the group with the new users array
+        dbGroups.update({ name: data.group }, { $set: { members } }, {}, function (err, numReplaced) {
+            console.log(numReplaced)
+        });
+    });
+    dbGroups.loadDatabase(function (err) {    // Callback is optional
+        // Now commands will be executed
+    });
+
+});
+
+app.post("/removeUserFromGroup", (req, res) => {
+    let data = req.body;
+
+    dbGroups.findOne({ name: data.group }, function (err, group) {
+        // check if the group exists
+        if (!group) {
+            console.log('Group not found');
+            return;
+        }
+
+        // get the current users array and add the new user ID to it
+        let members = group.members || [];
+        let index = members.indexOf(data.user);
+        if (index === -1) {
+            console.log('User not found in group');
+            return;
+        }
+
+        // remove the user from the array
+        members.splice(index, 1);
+        // update the group with the new users array
+        dbGroups.update({ name: data.group }, { $set: { members } }, {}, function (err, numReplaced) {
+            console.log(numReplaced)
+        });
+    });
+    dbGroups.loadDatabase(function (err) {    // Callback is optional
+        // Now commands will be executed
+    });
+
+});
 app.post("/getGroups", (req, res) => {
     let data = req.body;
 

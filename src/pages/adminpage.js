@@ -80,6 +80,8 @@ export default function AdminPage(props) {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+        console.log(image);
+
 
         const formData = new FormData();
         let jsonData = {
@@ -108,8 +110,9 @@ export default function AdminPage(props) {
             }
         };
         const result = await axios.post(URL, formData, config)
-        console.log(formData);
-        console.log("REsult: ", result);
+        // console.log(formData);
+        // console.log("REsult: ", result);
+
     };
 
     return (
@@ -119,6 +122,7 @@ export default function AdminPage(props) {
                     Login
                 </label>
                 <input
+                    required
                     type="login"
                     name="login"
                     value={login}
@@ -236,6 +240,7 @@ export default function AdminPage(props) {
                 </div>
                 <div className="relative border-2 border-gray-200 rounded-md p-4 flex justify-center items-center">
                     <input
+                        required
                         id="image"
                         type="file"
                         accept="image/*"
