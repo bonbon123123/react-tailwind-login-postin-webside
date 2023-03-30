@@ -5,36 +5,38 @@ export default function UserBar(props) {
     const { content } = props;
     const [users, setUsers] = useState([]);
 
-    React.useEffect(() => {
+    // useEffect(() => {
+    //     async function fetchData() {
+    //         try {
+    //             const response = await fetch('http://localhost:3001/getUsersFromGroup', {
+    //                 method: 'POST',
+    //                 headers: {
+    //                     'Content-Type': 'application/json',
+    //                     'Access-Control-Allow-Origin': '*'
+    //                 },
+    //                 body: JSON.stringify({
+    //                     id: content._id
+    //                 })
+    //             });
+    //             const data = await response.json();
+    //             setUsers(data);
+    //         } catch (error) {
+    //             console.error(error);
+    //         }
+    //     }
+    //     fetchData();
+    // }, [content._id]);
 
-        fetch('http://localhost:3001/getUsersFromGroup', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                id: content._id
-            })
-        })
-            .then(response => response.json())
-            .then(data => {
-                setUsers(data);
-            })
-            .catch(error => {
-                console.error(error);
-            })
-        console.log(users)
-    }, []);
 
     const userComponents =
-        users.length > 0 ? (
-            users.map((user, index) => {
-
-                return <User key={index} content={user[0]} />;
+        content && content.length > 0 ? (
+            content.map((user, index) => {
+                return <User key={index} content={user} />;
             })
         ) : (
             <p>Loading Users...</p>
         );
+
 
 
 

@@ -236,7 +236,7 @@ app.post("/getUsers", (req, res) => {
     let data = req.body;
 
 
-    dbUsers.find({}, { password: 0, _id: 0 }, function (err, docs) {
+    dbUsers.find({}, { password: 0 }, function (err, docs) {
         // console.log(docs)
         // console.log(JSON.stringify(docs))
 
@@ -245,31 +245,36 @@ app.post("/getUsers", (req, res) => {
 });
 
 app.post("/getUsersFromGroup", (req, res) => {
-    dbUsers.loadDatabase(function (err) {    // Callback is optional
-        // Now commands will be executed
-    });
     let data = req.body;
     let dataToSend = [];
-    //console.log("i am fetching with that data: ");
-    //console.log(data.id)
+    console.error("data:", data);
     dbGroups.findOne({ _id: data.id }, function (err, group) {
-        // console.log("group found");
-        // console.log(group);
+        if (err) {
+            console.error(err);
+            res.status(500).send("Error fetching group data");
+            return;
+        }
+        console.error("group:", group.name);
+        let processedMembers = 0;
 
         group.members.forEach(element => {
-
             dbUsers.find({ _id: element }, { password: 0, _id: 0 }, function (err, docs) {
-                dataToSend.push(docs)
-                if (group.members.length == dataToSend.length) {
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+
+                dataToSend.push(docs);
+                processedMembers++;
+
+                if (processedMembers === group.members.length) {
                     res.send(JSON.stringify(dataToSend));
-                } 
+                }
             });
         });
-
     });
-
-
 });
+
 
 app.post("/getGroups", (req, res) => {
     let data = req.body;
@@ -408,7 +413,7 @@ app.post("/changePassword", (req, res) => {
 app.post("/handleStatus", (req, res) => {
 
     let data = JSON.parse(req.body.jsonData);
-    //console.log("handling logining ", data.status)
+    console.log("handling logining ", data.status)
     // Find the user by login and password
     dbUsers.update({ _id: data.user }, { $set: { status: data.status } }, {}, function (err, numReplaced) {
         if (err) {

@@ -8,20 +8,25 @@ export default function User(props) {
     // console.log(content[0]);
     // console.log(content[0].image);
     useEffect(() => {
-        console.log("trying to fetch profile picture", content);
-        fetch('http://localhost:3001/profilePicture', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ image: content.image })
-        })
-            .then(response => response.blob())
-            .then(blob => {
+        async function fetchProfilePicture() {
+            try {
+                const response = await fetch('http://localhost:3001/profilePicture', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ image: content.image })
+                });
+                const blob = await response.blob();
                 const imageUrl = URL.createObjectURL(blob);
                 setIProfilePicture(imageUrl);
-            });
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        fetchProfilePicture();
     }, [content._id]);
+
 
 
     return (

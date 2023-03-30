@@ -9,7 +9,8 @@ import UserBar from '../components/UserBar'
 export function Group(props) {
     const { token } = props;
     const [groups, setGroups] = useState([]);
-
+    const [users, setUsers] = useState([]);
+    const [usersReady, setReady] = useState([]);
     const [groupNames, setGroupNames] = useState([]);
 
     React.useEffect(() => {
@@ -29,25 +30,63 @@ export function Group(props) {
             .catch(error => {
                 console.error(error);
             })
-
+        fetch('http://localhost:3001/getUsers', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                role: token.role
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                setUsers(data);
+            })
+            .catch(error => {
+                console.error(error);
+            })
     }, []);
-
     React.useEffect(() => {
-        groups.forEach(element => {
-            if (!groupNames.includes(element.name)) {
-                setGroupNames(prevGroupNames => [...prevGroupNames, element.name]);
+        const groupedUsers = {};
+
+        groups.forEach((group) => {
+            if (!groupNames.includes(group.name)) {
+                setGroupNames((prevGroupNames) => [...prevGroupNames, group.name]);
             }
+            group.members.forEach((user) => {
+                if (groupedUsers[group.name]) {
+                    users.forEach(miniuser => {
+
+                        if (miniuser._id == user) {
+                            groupedUsers[group.name].push(miniuser);
+                        }
+                    })
+
+                } else {
+                    users.forEach(miniuser => {
+
+                        if (miniuser._id == user) {
+                            groupedUsers[group.name] = [miniuser];
+                        }
+                    })
+
+                }
+            });
         });
+
+        setReady(groupedUsers);
+        console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
     }, [groups]);
 
-
-
     const userBars = groups.length > 0 ? (
-        groups.map((group, index) => {
+        groupNames.map((groupName, index) => { // iterate over group names instead of users
+            const group = usersReady[groupName]; // get the group object from the users state using the group name as key
+
             return (
                 <div className="w-full" key={index}>
                     <div htmlFor="name" className="block mb-1 font-bold text-white">
-                        {group.name}
+                        {groupName} {/* display the group name */}
                     </div>
                     <UserBar content={group} />
                 </div>
@@ -57,24 +96,7 @@ export function Group(props) {
         <p>Loading posts...</p>
     );
 
-    // const postComponents =
-    //     posts.length > 0 ? (
 
-    //         posts.map((post, index) => {
-    //             return <Post key={index} content={post} />;
-    //         })
-    //     ) : (
-    //         <p>Loading posts...</p>
-    //     );
-    // const userComponents =
-    //     users.length > 0 ? (
-
-    //         users.map((users, index) => {
-    //             return <User key={index} content={users} />;
-    //         })
-    //     ) : (
-    //         <p>Loading Users...</p>
-    //     );
 
 
     return (

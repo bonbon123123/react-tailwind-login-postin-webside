@@ -7,42 +7,43 @@ export function UserProfile(props) {
     const { token } = props;
     const [posts, setPosts] = useState([]);
     const [users, setUsers] = useState([]);
+    const [groups, setGroups] = useState([]);
+    const [currentGroup, setGroup] = useState();
     console.log(token.role);
 
     React.useEffect(() => {
-        if (token.role === "admin") {
-            fetch('http://localhost:3001/getPosts', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+        fetch('http://localhost:3001/getGroups', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                role: token.role
             })
-                .then(response => response.json())
-                .then(data => {
-                    setPosts(data);
-                })
-                .catch(error => {
-                    console.error(error);
-                })
+        })
+            .then(response => response.json())
+            .then(data => {
+                setGroups(data);
+            })
+            .catch(error => {
+                console.error(error);
+            })
 
-        } else {
-            fetch('http://localhost:3001/getPostsWithMyPremission', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    role: token.role
-                })
+        fetch('http://localhost:3001/getPosts', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                setPosts(data);
             })
-                .then(response => response.json())
-                .then(data => {
-                    setPosts(data);
-                })
-                .catch(error => {
-                    console.error(error);
-                })
-        };
+            .catch(error => {
+                console.error(error);
+            })
+
+
         fetch('http://localhost:3001/getUsers', {
             method: 'POST',
             headers: {
@@ -59,6 +60,26 @@ export function UserProfile(props) {
             })
 
     }, []);
+    const buttonComponents =
+        groups.length > 0 ? (
+            <div className="flex flex-col gap-4">
+                {groups.map((group, index) => {
+
+                    return (
+                        <button
+                            key={index}
+                            onClick={() => setGroup(group.name)}
+                            className="bg-blue-500 text-white font-bold py-2 px-4 rounded"
+                        >
+                            {group.name}
+                        </button>
+                    );
+                })}
+            </div>
+        ) : (
+            <p>Loading buttons...</p>
+        );
+
 
     const postComponents =
         posts.length > 0 ? (
@@ -90,12 +111,14 @@ export function UserProfile(props) {
 
 
             </div>
-            {/* Right column */}
+
 
             <div className="flex flex-col w-3/4 h-full p-10 bg-gray-800 overflow-y-scroll" >
+
                 <div >
                     <PostArea user={token._id} />
                 </div>
+                {buttonComponents}
                 {<div >{postComponents}</div>}
             </div>
         </div>

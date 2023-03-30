@@ -35,12 +35,20 @@ function App() {
       };
       const result = await axios.post(URL, formData, config)
 
-      sessionStorage.clear();
-      window.location.href = '/';
+      // Only prompt user to confirm they want to leave the page
+      // after the server call has completed successfully
+      const confirmationMessage = "Are you sure you want to leave this page?";
+      window.addEventListener("beforeunload", function (e) {
+        e.preventDefault();
+        e.returnValue = confirmationMessage;
+      });
+
+      // Return null so that the confirmation prompt isn't displayed twice
+      return null;
     } catch (error) {
       console.error(error);
+      return "There was an error logging out. Are you sure you want to leave this page?";
     }
-    return "Are you sure you want to leave this page?";
   }
 
 
