@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import './App.css';
-
+import EditUSer from '../components/editUser'
 import Post from '../components/Post';
 import PostArea from '../components/PostArea';
 import PasswordChange from '../components/passwordChane';
@@ -14,7 +14,7 @@ export function UserProfile(props) {
     const [posts, setPosts] = useState([]);
     const [currentTop, setTop] = useState("");
     const [profilePicture, setIProfilePicture] = useState(null);
-    
+
     function handleButtons(topState) {
 
         setTop(topState);
@@ -48,7 +48,7 @@ export function UserProfile(props) {
             case 'password':
                 return <PasswordChange token={token} handleButtons={handleButtons} />
             case 'edit':
-                return <PasswordChange />
+                return <EditUSer user={token} profilePicture={profilePicture} />
         }
 
     }
@@ -118,8 +118,7 @@ export function UserProfile(props) {
                         Change password
                     </button>
 
-                </div>
-                <div className="flex flex-row mt-1 justify-around">
+
                     <button
                         type="submit"
                         onClick={() => handleButtons('post')}

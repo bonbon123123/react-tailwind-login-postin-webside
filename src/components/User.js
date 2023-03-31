@@ -5,8 +5,6 @@ export default function User(props) {
     const { content } = props;
     const [imageUrl, setIProfilePicture] = useState(null);
 
-    // console.log(content[0]);
-    // console.log(content[0].image);
     useEffect(() => {
         async function fetchProfilePicture() {
             try {
@@ -51,7 +49,7 @@ export default function User(props) {
                 <p className="text-lg font-bold">{content.login}</p>
                 <p className="text-gray-400">{content.status}</p>
             </div>
-
+            <button className="rounded-full bg-blue-500 text-white font-bold py-2 px-4 mb-1" onClick={()=>{}}>EDIT</button>
         </div>
 
 

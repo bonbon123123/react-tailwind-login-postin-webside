@@ -121,6 +121,22 @@ app.post('/profilePicture', (req, res) => {
     ps.pipe(res) // <---- this makes a trick with stream error handling
 })
 
+app.post('/groupPicture', (req, res) => {
+    let data = req.body;
+    console.log(data);
+    const r = fs.createReadStream('./server/static/group-pictures/' + data.image) // or any other way to get a readable stream
+    const ps = new stream.PassThrough() // <---- this makes a trick with stream error handling
+    stream.pipeline(
+        r,
+        ps, // <---- this makes a trick with stream error handling
+        (err) => {
+            if (err) {
+                console.log(err) // No such file or any other kind of error
+                return res.sendStatus(400);
+            }
+        })
+    ps.pipe(res) // <---- this makes a trick with stream error handling
+})
 
 let profileStorage = multer.diskStorage({
     destination: path.join(__dirname, './static', 'profile-pictures'),
@@ -205,6 +221,45 @@ app.post('/addUser', profileUpload.single('image'), (req, res) => {
     });
 });
 
+
+let profileUpdateStorage = multer.diskStorage({
+    destination: path.join(__dirname, './static', 'profile-pictures'),
+    filename: function (req, file, cb) {
+        // let ext = path.extname(file.originalname);
+        // let fileName = userUUid + ext;
+        // req.fileDetails = {
+        //     fileName: fileName,
+        //     fileType: file.mimetype,
+        //     filePath: `/static/profile-pictures/${fileName}`,
+        // };
+        cb(null, file.originalname);
+    },
+});
+
+let profileUpdateUpload = multer({ storage: profileUpdateStorage });
+
+app.post('/editUser', profileUpdateUpload.single('image'), (req, res) => {
+    let myData = JSON.parse(req.body.jsonData);
+    console.log(myData);
+    dbUsers.find({ _id: myData.id }, function (err, docs) {
+
+
+        console.log("docs", docs)
+
+        let imageName = uuidv4() + path.extname(req.file.filename);
+
+        fs.rename(path.join(__dirname, './static', 'profile-pictures', req.file.filename),
+            path.join(__dirname, './static', 'profile-pictures', imageName), function (err) {
+                if (err) console.log('ERROR: ' + err);
+            });
+
+        dbUsers.update({ _id: myData.id }, { $set: { bio: myData.bio, image: imageName, department: myData.department } }, function (err, newDoc) {   // Callback is optional
+            // newDoc is the newly inserted document, including its _id
+            // newDoc has no key called notToBeSaved since its value was undefined
+        });
+
+    });
+});
 
 app.post("/login", (req, res) => {
     let data = req.body;

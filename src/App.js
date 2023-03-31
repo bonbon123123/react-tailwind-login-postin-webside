@@ -16,8 +16,33 @@ import axios from 'axios';
 
 function App() {
   const { token, setToken } = useToken();
+  async function logoutWillingly(user) {
+    console.log("logging out")
+
+    const formData = new FormData();
+    let jsonData = {
+      user: user,
+      status: "offline"
+    }
+    formData.append('jsonData', JSON.stringify(jsonData));
+
+    const URL = "http://localhost:3001/handleStatus"
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        'timeout': 500,
+      }
+    };
+    const result = await axios.post(URL, formData, config)
+
+    // Only prompt user to confirm they want to leave the page
+    // after the server call has completed successfully
+    sessionStorage.clear();
+    window.location.href = '/';
+  }
 
   async function logout(user) {
+    console.log("logging out")
     try {
       const formData = new FormData();
       let jsonData = {
@@ -30,7 +55,7 @@ function App() {
       const config = {
         headers: {
           'Content-Type': 'application/json',
-          'timeout': 5000,
+          'timeout': 500,
         }
       };
       const result = await axios.post(URL, formData, config)
@@ -132,7 +157,7 @@ function App() {
                     </div>
 
                     <div className="ml-4">
-                      <button onClick={() => { logout(token._id) }}
+                      <button onClick={() => { logoutWillingly(token._id) }}
 
                         className="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-gray-900 hover:bg-white mt-4 lg:mt-0"
                       >
