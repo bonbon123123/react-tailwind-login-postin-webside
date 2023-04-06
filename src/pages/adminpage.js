@@ -219,7 +219,6 @@ export default function AdminPage(props) {
                     onChange={handleDepartamentChange}
                     className="w-full p-2 border border-gray-400 rounded"
                 >
-                    <option value="testers">Select a department</option>
                     <option value="administration">administration</option>
                     <option value="testers">testers</option>
                 </select>

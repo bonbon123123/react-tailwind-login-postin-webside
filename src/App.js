@@ -5,6 +5,7 @@ import Login from './pages/loginPage';
 import Profile from './pages/userProfile';
 import Main from './pages/mainPage';
 import Admin from './pages/adminPage';
+import Users from './pages/usersPage';
 import useToken from './useToken';
 import PasswordChange from './components/passwordChane';
 import Group from "./pages/groupPage"
@@ -114,7 +115,16 @@ function App() {
                   <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
                 </button>
                 <div class="hidden w-full md:block md:w-auto" id="navbar-default">
-                  <div class="flex flex-col p-4 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+                  <div class="flex flex-col p-4 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-4 md:mt-0 md:text-sm md:font-medium md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+
+                    <div className="ml-4">
+                      <Link
+                        to="/users"
+                        className="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-gray-900 hover:bg-white mt-4 lg:mt-0"
+                      >
+                        Users
+                      </Link>
+                    </div>
 
                     <div className="ml-4">
                       <Link
@@ -179,6 +189,8 @@ function App() {
               <Route path="/main" element={token ? <Main token={token} /> : <Login setToken={setToken} />} />
               <Route path="/admin" element={token.role === "admin" ? <Admin token={token} /> : <Profile token={token} />} />
               <Route path="/group" element={token ? <Group token={token} /> : <Login setToken={setToken} />} />
+              <Route path="/users" element={token ? <Users token={token} /> : <Login setToken={setToken} />} />
+
               {/* <Route path="/admin" element={<Admin token={token} />} /> */}
             </Routes>
           </Router>
@@ -191,6 +203,7 @@ function App() {
             <Route path="/profile" element={token ? <Profile token={token} /> : <Login setToken={setToken} />} />
             <Route path="/main" element={token ? <Main token={token} /> : <Login setToken={setToken} />} />
             <Route path="/group" element={token ? <Group token={token} /> : <Login setToken={setToken} />} />
+            <Route path="/users" element={token ? <Users token={token} /> : <Login setToken={setToken} />} />
 
           </Routes>
         </Router>
